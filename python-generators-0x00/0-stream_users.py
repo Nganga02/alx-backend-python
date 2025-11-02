@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 
-# import mysql.connector
+import mysql.connector
 
 import sys
 import os
 
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'python-generators-0x00'))
-sys.path.append(parent_dir)
 
 
 from seed import connect_to_prodev
