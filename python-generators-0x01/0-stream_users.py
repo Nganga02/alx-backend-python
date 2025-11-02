@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+
+# import mysql.connector
+
+import sys
+import os
+
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'python-generators-0x00'))
+sys.path.append(parent_dir)
+
+
+from seed import connect_to_prodev
+
+
+def stream_users():
+    """
+    Generator that streams rows from the user_data table one by one.
+    Only one loop is used as required.
+    """
+    connection = connect_to_prodev()
+    if not connection:
+        return 
+
+    try:
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM user_data")
+
+        # Single loop: yield each row one by one
+        for row in cursor:
+            yield row
+
+    except mysql.connector.Error as err:
+        print(f"X Error streaming users: {err}")
+
+    finally:
+        cursor.close()
+        connection.close()
