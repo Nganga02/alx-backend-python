@@ -2,11 +2,6 @@
 
 import mysql.connector
 
-import sys
-import os
-
-
-
 from seed import connect_to_prodev
 
 
@@ -23,7 +18,7 @@ def stream_users():
         cursor = connection.cursor(dictionary=True)
         cursor.execute("SELECT * FROM user_data")
 
-        # Single loop: yield each row one by one
+      
         for row in cursor:
             yield row
 
