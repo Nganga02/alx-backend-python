@@ -14,7 +14,12 @@ class DatabaseConnection:
 
     #closing a database connection
     def __exit__(self, exc_type, exc_value, traceback):
-        self.conn.close()
+         if self.conn:
+            if exc_type is None:
+                self.conn.commit()
+            else:
+                self.conn.rollback()
+            self.conn.close()
 
 
 
