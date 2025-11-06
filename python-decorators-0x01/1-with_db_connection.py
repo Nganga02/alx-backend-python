@@ -7,6 +7,7 @@ def with_db_connection(func):
     def wrapper_func(*args, **kwargs):
         conn = sqlite3.connect("users.db")
         user = func(conn, *args, **kwargs)
+        conn.close()
         return user
     return wrapper_func
 
@@ -18,5 +19,5 @@ def get_user_by_id(conn, user_id):
     return cursor.fetchone() 
     #### Fetch user by ID with automatic connection handling 
 
-user = get_user_by_id(user_id=1)
+user = get_user_by_id(user_id=2)
 print(user)

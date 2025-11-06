@@ -23,5 +23,5 @@ def fetch_all_users(query):
     return results
 
 #### fetch users while logging the query
-users = fetch_all_users(query="""SELECT * FROM users;""")
+users = fetch_all_users(query="""SELECT * FROM users""")
 print(users)
