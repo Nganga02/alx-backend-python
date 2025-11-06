@@ -2,15 +2,16 @@ import sqlite3
 
 
 class ExecuteQuery:
-    def __init__(self, dbname, query):
+    def __init__(self, dbname, query, parameters = None):
         self.db = dbname
         self.query = query
         self.conn = None
+        self.params = parameters or ()
     
     def __enter__(self):
         self.conn = sqlite3.connect(self.db)
         cursor = self.conn.cursor()
-        cursor.execute(self.query)
+        cursor.execute(self.query,self.params)
         results = cursor.fetchall()
         return results
     
@@ -22,6 +23,6 @@ class ExecuteQuery:
                 self.conn.rollback()
             self.conn.close()
 
-
-with ExecuteQuery('users.db', """SELECT * FROM users;""") as users:
+query = """SELECT * FROM users WHERE age > ?;"""
+with ExecuteQuery('users.db', query, parameters=(25,)) as users:
     print(users)
