@@ -6,15 +6,8 @@ def with_db_connection(func):
     @wraps(func)
     def wrapper_func(*args, **kwargs):
         conn = sqlite3.connect("users.db")
-        try:
-            user = func(conn, *args, **kwargs)
-            conn.commit()
-            return user
-        except Exception as e:
-            conn.rollback()
-            raise e
-        finally:
-            conn.close()
+        user = func(conn, *args, **kwargs)
+        return user
     return wrapper_func
 
 
