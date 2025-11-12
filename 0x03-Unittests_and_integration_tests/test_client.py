@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" A github org client test unit test module
+""" A Github org client test unit test module
 """
 
 import unittest
@@ -20,6 +20,8 @@ class TestGithubOrgClient(unittest.TestCase):
     ))
     @patch("client.requests.get")
     def test_org(self, org_name, mock_get):
+        """Function that test the org method of GithubOrgClient 
+        """
         mock_get.return_value.json.return_value = {"{}".format(org_name): "This is the map"}
         test_client = GithubOrgClient(org_name)
         test_client.org
