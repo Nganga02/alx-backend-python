@@ -13,3 +13,12 @@ class TestAccessNestedMap(unittest.TestCase):
     def test_access_nested_map(self, nestedMap, path, expected):
         """function to test access_nested_map function"""
         self.assertEqual(access_nested_map(nested_map=nestedMap, path=path), expected)
+
+    @parameterized.expand([
+        ({}, ("a",)),
+        ({"a": 1},("a", "b")),
+    ])
+    def test_access_nested_map_exception(self, nestedMap, path):
+        """function used to test the function exception"""
+        with self.assertRaises(KeyError):
+            access_nested_map(nested_map=nestedMap, path=path)
