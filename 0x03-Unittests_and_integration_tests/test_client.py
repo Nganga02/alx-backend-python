@@ -12,7 +12,7 @@ from client import GithubOrgClient
 class TestGithubOrgClient(unittest.TestCase):
     """ A github org client test unit test module
     """
-    
+
     @parameterized.expand((
         "google",
         "abc",
