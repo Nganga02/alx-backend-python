@@ -2,7 +2,7 @@
 """ unit test for client module"""
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from parameterized import parameterized, parameterized_class
 
 from client import GithubOrgClient
@@ -37,7 +37,7 @@ class TestGithubOrgClient(unittest.TestCase):
     def test_public_repos_url(self):
         """function to test the public repos url property"""
 
-        test_client = GithubOrgClient()
+        test_client = GithubOrgClient("test-org")
 
         with patch.object(
             GithubOrgClient,
@@ -126,10 +126,10 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         self.mock_get = self.get_patcher.start()
 
         def side_effect(url):
-            mock_response = unittest.Mock()
-            if url.endswith(f"/orgs/{self.org_name}"):
+            mock_response = Mock()
+            if url.endswith(f"/orgs/google"):
                 mock_response.json.return_value = self.org_payload
-            elif url.endswith(f"/orgs/{self.org_name}/repos"):
+            elif url.endswith(f"/orgs/google/repos"):
                 mock_response.json.return_value = self.repos_payload
             return mock_response
 
