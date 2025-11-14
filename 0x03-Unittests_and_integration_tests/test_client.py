@@ -160,10 +160,10 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         """Test public api"""
         all_repos = self.test_client.public_repos(license=None)
 
-        self.assertEqual(all_repos, self.expected_repos)
+        self.assertListEqual(all_repos, self.expected_repos)
 
     def test_public_repos_with_license(self):
         """Test apache license repos"""
         apache_repos = self.test_client.public_repos(license="apache-2.0")
 
-        self.assertEqual(apache_repos, self.apache2_repos)
+        self.assertListEqual(apache_repos, self.apache2_repos)
