@@ -142,7 +142,8 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     def setUp(self):
         """Initializing fresh client for each test"""
-        self.test_client = GithubOrgClient('google')
+        self.test_client = GithubOrgClient(self.org_name)
+        self.org_name = 'google'
 
     def test_org(self):
         """Test org property"""
