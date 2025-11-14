@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-""" A Github org client test unit test module
-"""
+""" unit test for client module"""
 
 import unittest
 from unittest.mock import patch
@@ -17,13 +16,19 @@ class TestGithubOrgClient(unittest.TestCase):
         "google",
         "abc",
     ))
-    @patch("client.requests.get")
+    @patch("client.get_json")
     def test_org(self, org_name, mock_get):
         """Function that test the org method of GithubOrgClient 
         """
-        mock_get.return_value.json.return_value = {"{}".format(org_name): "This is the map"}
-        test_client = GithubOrgClient(org_name)
-        test_client.org
-        self.assertEqual(test_client.org, {"{}".format(org_name): "This is the map"})
+        mock_get.return_value = {"org": org_name, "data": "test"}
 
-        mock_get.assert_called_once()
+        test_client = GithubOrgClient(org_name)
+        org_data = test_client.org
+        self.assertEqual(
+            org_data,
+            {"org": org_name, "data": "test"}
+        )
+
+        mock_get.assert_called_once_with(
+            f"https://api.github.com/orgs/{org_name}"
+        )
