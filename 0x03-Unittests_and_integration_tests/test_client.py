@@ -3,9 +3,10 @@
 
 import unittest
 from unittest.mock import patch
-from parameterized import parameterized
+from parameterized import parameterized, parameterized_class
 
 from client import GithubOrgClient
+from fixtures import TEST_PAYLOAD
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -107,12 +108,62 @@ class TestGithubOrgClient(unittest.TestCase):
         )
 
 
+@parameterized_class((
+    'org_payload',
+    'repos_payload',
+    'expected_repos',
+    'apache2_repos'
+    ),
+    TEST_PAYLOAD
+)
 class TestIntegrationGithubOrgClient(unittest.TestCase):
-    """Testing inegration of the GihubOrgClient"""
-    @classmethod
-    def setUp(self):
-        pass
+    """Testing inegration of the GihubOrgClient with organizations"""
 
     @classmethod
-    def tearDown(self):
-        pass
+    def setUpClass(cls):
+        """This sets up the test class"""
+        cls.get_patcher = patch('client.requests.get',)
+        cls.mock_get = cls.get_patcher.start()
+
+        def side_effect(url):
+            mock_response = unittest.Mock()
+            if url.endswith(f"/orgs/{cls.org_name}"):
+                mock_response.json.return_value = cls.org_payload
+            elif url.endswith(f"/orgs/{cls.org_name}/repos"):
+                mock_response.json.return_value = cls.repos_payload
+            return mock_response
+        
+        cls.mock_get.side_effect = side_effect
+
+    @classmethod
+    def tearDownClass(cls):
+        """Stop patcher after all tests"""
+        cls.get_patcher.stop()
+
+    def setUp(self):
+        """Initializing fresh client for each test"""
+        self.test_client = GithubOrgClient('google')
+
+    def test_org(self):
+        """Test org property"""
+        result = self.test_client.org
+
+        self.assertEqual(result, self.org_payload)
+
+    def test_public_repos_url(self):
+        """Test public repos url api"""
+        result = self.test_client._public_repos_url
+
+        self.assertEqual(result, self.org_payload['repos_url'])
+
+    def test_public_repos(self):
+        """Test public api"""
+        all_repos = self.test_client.public_repos(license=None)
+
+        self.assertEqual(all_repos, self.expected_repos)
+
+        apache_repos = self.test_client.public_repos(license="apache-2.0")
+
+        self.assertEqual(apache_repos, self.apache2_repos)
+
+
