@@ -17,8 +17,7 @@ class TestGithubOrgClient(unittest.TestCase):
     ))
     @patch("client.get_json")
     def test_org(self, org_name, mock_get):
-        """Function that test the org method of GithubOrgClient 
-        """
+        """Function that test the org method of GithubOrgClient"""
         mock_get.return_value = {"org": org_name, "data": "test"}
 
         test_client = GithubOrgClient(org_name)
@@ -35,8 +34,7 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(org_data, {"org": org_name, "data": "test"})
 
     def test_public_repos_url(self):
-        """function to test the public repos url property
-        """
+        """function to test the public repos url property"""
 
         test_client = GithubOrgClient()
         
@@ -106,3 +104,9 @@ class TestGithubOrgClient(unittest.TestCase):
         test_client = GithubOrgClient('test-org')
 
         self.assertEqual(test_client.has_license(test_repo, test_key), expected)
+
+
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """Testing inegration of the GihubOrgClient"""
+    @classmethod
+    def 
