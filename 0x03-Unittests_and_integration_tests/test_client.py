@@ -122,7 +122,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         """This sets up the test class"""
-        self.get_patcher = patch('client.requests.get',)
+        self.get_patcher = patch('requests.get',)
         self.mock_get = self.get_patcher.start()
 
         def side_effect(url):
