@@ -109,4 +109,10 @@ class TestGithubOrgClient(unittest.TestCase):
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Testing inegration of the GihubOrgClient"""
     @classmethod
-    def 
+    def setUp(self):
+        pass
+
+    @classmethod
+    def tearDown(self):
+        pass
+    
