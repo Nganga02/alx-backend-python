@@ -120,20 +120,20 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Testing inegration of the GihubOrgClient with organizations"""
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(self):
         """This sets up the test class"""
-        cls.get_patcher = patch('client.requests.get',)
-        cls.mock_get = cls.get_patcher.start()
+        self.get_patcher = patch('client.requests.get',)
+        self.mock_get = self.get_patcher.start()
 
         def side_effect(url):
             mock_response = unittest.Mock()
-            if url.endswith(f"/orgs/{cls.org_name}"):
-                mock_response.json.return_value = cls.org_payload
-            elif url.endswith(f"/orgs/{cls.org_name}/repos"):
-                mock_response.json.return_value = cls.repos_payload
+            if url.endswith(f"/orgs/{self.org_name}"):
+                mock_response.json.return_value = self.org_payload
+            elif url.endswith(f"/orgs/{self.org_name}/repos"):
+                mock_response.json.return_value = self.repos_payload
             return mock_response
         
-        cls.mock_get.side_effect = side_effect
+        self.mock_get.side_effect = side_effect
 
     @classmethod
     def tearDownClass(cls):
