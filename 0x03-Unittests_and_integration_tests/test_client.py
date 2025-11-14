@@ -9,10 +9,9 @@ from client import GithubOrgClient
 
 
 class TestGithubOrgClient(unittest.TestCase):
-    """ A github org client test unit test module
-    """
-    
-    
+    """ A github org client test unit test module"""
+
+
     @parameterized.expand((
         "google",
         "abc",
@@ -84,7 +83,7 @@ class TestGithubOrgClient(unittest.TestCase):
 
             test_client = GithubOrgClient("test-org")
 
-            result = test_client.public_repos()
+            result = test_client.public_repos(license=None)
             
 
             self.assertEqual(result, ["repo-a", "repo-b"])
