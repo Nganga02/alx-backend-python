@@ -51,7 +51,6 @@ class TestGetJson(unittest.TestCase):
             mocked_get.return_value.json.return_value = payload
             
             response = get_json(url=test_url)
-            response = get_json(url=test_url)
             mocked_get.assert_called_once_with(test_url)
             self.assertEqual(response, payload)
 
@@ -64,13 +63,15 @@ class TestMemoize(unittest.TestCase):
         """Test the correct functioning of the memoize decorator
         """
         class TestClass:
+            """Test class used to conduct tests"""
             def a_method(self):
                 return 42
 
             @memoize
             def a_property(self):
                 return self.a_method()
-                
+
+        """creating an instance of the test class"""      
         test_obj = TestClass() 
         
         with patch.object(TestClass, 'a_method', wraps=test_obj.a_method) as mocked_call:
