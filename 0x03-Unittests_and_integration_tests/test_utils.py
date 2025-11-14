@@ -15,15 +15,19 @@ class TestAccessNestedMap(unittest.TestCase):
 
     @parameterized.expand([
         ({"a": 1}, ("a",), 1),
-        ({"a": {"b": 2}},("a",), {"b": 2}),
-        ({"a": {"b": 2}},("a", "b"), 2),
+        ({"a": {"b": 2}}, ("a",), {"b": 2}),
+        ({"a": {"b": 2}}, ("a", "b"), 2),
     ])
     def test_access_nested_map(self, nested_map, path, expected):
         """Tests access_nested_map function
         tests if the function return the desired output;
-        given the nested map and the path the function should return the expected results
+        given the nested map and the path the function 
+        should return the expected results
         """
-        self.assertEqual(access_nested_map(nested_map=nested_map, path=path), expected)
+        self.assertEqual(
+            access_nested_map(nested_map=nested_map, path=path), 
+            expected
+            )
 
     @parameterized.expand([
         ({}, ("a",)),
@@ -75,7 +79,7 @@ class TestMemoize(unittest.TestCase):
         test_obj = TestClass() 
         
         with patch.object(TestClass, 
-            'a_method', 
+            'a_method',
             wraps=test_obj.a_method
         ) as mocked_call:
             #calling the property twice so as to access the property
