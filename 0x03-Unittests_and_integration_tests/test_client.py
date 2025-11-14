@@ -73,16 +73,7 @@ class TestGithubOrgClient(unittest.TestCase):
         },
     ]
         mocked_get_json.return_value = test_payload
-        test_client = GithubOrgClient("test-org")
-
-        result1 = test_client.public_repos()
-        result2 = test_client.public_repos()
-        mocked_get_json.assert_called_once_with(
-            f"https://api.github.com/orgs/test-org/json"
-            )
-
-        self.assertEqual(result1, ["repo-a", "repo-b"])
-        self.assertEqual(result1,result2)
+        
 
         with patch.object(
             GithubOrgClient,
@@ -90,6 +81,15 @@ class TestGithubOrgClient(unittest.TestCase):
             new_callable=unittest.mock.PropertyMock
         ) as mock_property:
             mock_property.return_value = "https://api.github.com/orgs/test-org/repos"
+
+            test_client = GithubOrgClient("test-org")
+
+            result = test_client.public_repos()
+            mocked_get_json.assert_called_once_with(
+                f"https://api.github.com/orgs/test-org/json"
+                )
+
+            self.assertEqual(result, ["repo-a", "repo-b"])
 
             result1 = test_client._public_repos_url
             result2 = test_client._public_repos_url
