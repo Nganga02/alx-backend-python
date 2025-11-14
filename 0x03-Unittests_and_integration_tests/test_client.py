@@ -69,7 +69,6 @@ class TestGithubOrgClient(unittest.TestCase):
     ]
         mocked_get_json.return_value = test_payload
         
-
         with patch.object(
             GithubOrgClient,
             '_public_repos_url',
@@ -82,7 +81,6 @@ class TestGithubOrgClient(unittest.TestCase):
 
             result = test_client.public_repos(license=None)
             
-
             self.assertEqual(result, ["repo-a", "repo-b"])
 
             mocked_get_json.assert_called_once_with(
@@ -103,7 +101,10 @@ class TestGithubOrgClient(unittest.TestCase):
         """test for the has_license method"""
         test_client = GithubOrgClient('test-org')
 
-        self.assertEqual(test_client.has_license(test_repo, test_key), expected)
+        self.assertEqual(
+            test_client.has_license(test_repo, test_key),
+            expected
+        )
 
 
 class TestIntegrationGithubOrgClient(unittest.TestCase):
@@ -115,4 +116,3 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     @classmethod
     def tearDown(self):
         pass
-    
