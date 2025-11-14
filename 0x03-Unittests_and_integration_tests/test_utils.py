@@ -48,7 +48,7 @@ class TestGetJson(unittest.TestCase):
         """Using unittest's mock to mock an external request so as to simulate http
         """
         with patch('utils.requests.get') as mocked_get:
-            mocked_get.return_value.json() = payload
+            mocked_get.return_value.json.return_value = payload
             
             response = get_json(url=test_url)
             response = get_json(url=test_url)
