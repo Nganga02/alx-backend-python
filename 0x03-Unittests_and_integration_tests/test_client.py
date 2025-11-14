@@ -132,7 +132,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
             elif url.endswith(f"/orgs/{self.org_name}/repos"):
                 mock_response.json.return_value = self.repos_payload
             return mock_response
-        
+
         self.mock_get.side_effect = side_effect
 
     @classmethod
@@ -165,5 +165,3 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         apache_repos = self.test_client.public_repos(license="apache-2.0")
 
         self.assertEqual(apache_repos, self.apache2_repos)
-
-
