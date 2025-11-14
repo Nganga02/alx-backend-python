@@ -93,7 +93,6 @@ class TestGithubOrgClient(unittest.TestCase):
                 )
 
             result1 = test_client._public_repos_url
-            result2 = test_client._public_repos_url
 
             mock_property.assert_called_once()
             self.assertEqual(result1, "https://api.github.com/orgs/test-org/repos")
