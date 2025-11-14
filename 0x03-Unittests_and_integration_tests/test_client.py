@@ -11,7 +11,6 @@ from client import GithubOrgClient
 class TestGithubOrgClient(unittest.TestCase):
     """ A github org client test unit test module"""
 
-
     @parameterized.expand((
         "google",
         "abc",
@@ -34,7 +33,6 @@ class TestGithubOrgClient(unittest.TestCase):
         )
 
         self.assertEqual(org_data, {"org": org_name, "data": "test"})
-
 
     def test_public_repos_url(self):
         """function to test the public repos url property
@@ -98,3 +96,15 @@ class TestGithubOrgClient(unittest.TestCase):
                 result1,
                 "https://api.github.com/orgs/test-org/repos"
                 )
+    
+    @parameterized.expand([
+        ({"license": {"key": "my_license"}}, "my_license"),
+        ({"license": {"key": "other_license"}}, "my_license")
+    ])
+    def test_has_license(self, test_repo, test_key):
+        test_client = GithubOrgClient('test-org')
+
+        if test_key == "my_license":
+            self.assertTrue(test_client.has_license(test_repo, test_key))
+        else:
+            self.assertFalse(test_client.has_license(test_repo, test_key))
