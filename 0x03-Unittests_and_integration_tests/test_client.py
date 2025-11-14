@@ -32,3 +32,5 @@ class TestGithubOrgClient(unittest.TestCase):
         mock_get.assert_called_once_with(
             f"https://api.github.com/orgs/{org_name}"
         )
+
+        self.assertEqual(org_data, {"org": org_name, "data": "test"})
