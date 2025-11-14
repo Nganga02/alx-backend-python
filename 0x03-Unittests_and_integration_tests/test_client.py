@@ -37,7 +37,7 @@ class TestGithubOrgClient(unittest.TestCase):
         """function to test the public repos url property"""
 
         test_client = GithubOrgClient()
-        
+
         with patch.object(
             GithubOrgClient,
             '_public_repos_url',
@@ -52,23 +52,23 @@ class TestGithubOrgClient(unittest.TestCase):
         """method to test the public_repos method"""
 
         test_payload = [
-        {
-            "id": 1,
-            "name": "repo-a",
-            "full_name": "test-org/repo-a",
-            "private": False,
-            "owner": {"login": "test-org"},
-        },
-        {
-            "id": 2,
-            "name": "repo-b",
-            "full_name": "test-org/repo-b",
-            "private": False,
-            "owner": {"login": "test-org"},
-        },
-    ]
+            {
+                "id": 1,
+                "name": "repo-a",
+                "full_name": "test-org/repo-a",
+                "private": False,
+                "owner": {"login": "test-org"},
+            },
+            {
+                "id": 2,
+                "name": "repo-b",
+                "full_name": "test-org/repo-b",
+                "private": False,
+                "owner": {"login": "test-org"},
+            },
+        ]
         mocked_get_json.return_value = test_payload
-        
+
         with patch.object(
             GithubOrgClient,
             '_public_repos_url',
@@ -80,7 +80,7 @@ class TestGithubOrgClient(unittest.TestCase):
             test_client = GithubOrgClient("test-org")
 
             result = test_client.public_repos(license=None)
-            
+
             self.assertEqual(result, ["repo-a", "repo-b"])
 
             mocked_get_json.assert_called_once_with(
