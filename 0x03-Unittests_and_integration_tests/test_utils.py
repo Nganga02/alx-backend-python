@@ -74,14 +74,15 @@ class TestMemoize(unittest.TestCase):
             def a_property(self):
                 return self.a_method()
 
-        """creating an instance of the test class"""    
+        """creating an instance of the test class"""
         test_obj = TestClass()
 
-        with patch.object(TestClass,
+        with patch.object(
+            TestClass,
             'a_method',
             wraps=test_obj.a_method
-            ) as mocked_call:
-            #calling the property twice so as to access the property
+        ) as mocked_call:
+            # calling the property twice so as to access the property
             test_obj.a_property
             test_obj.a_property
 
