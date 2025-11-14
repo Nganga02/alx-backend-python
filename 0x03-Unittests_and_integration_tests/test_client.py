@@ -11,13 +11,7 @@ from client import GithubOrgClient
 class TestGithubOrgClient(unittest.TestCase):
     """ A github org client test unit test module
     """
-    # @classmethod
-    # def setUp(self):
-    #     self.test_client = GithubOrgClient()
-
-    # @classmethod
-    # def tearDown(self):
-    #     self.test_client.dispose()
+    
     
     @parameterized.expand((
         "google",
@@ -42,6 +36,7 @@ class TestGithubOrgClient(unittest.TestCase):
 
         self.assertEqual(org_data, {"org": org_name, "data": "test"})
 
+
     def test_public_repos_url(self):
         """function to test the public repos url property
         """
@@ -49,10 +44,37 @@ class TestGithubOrgClient(unittest.TestCase):
         test_client = GithubOrgClient()
         
         with patch.object(
-            test_client,
+            GithubOrgClient,
             '_public_repos_url',
             new_callable=unittest.mock.PropertyMock
         ) as mock_property:
             mock_property.return_value = "test"
 
             self.assertEqual(test_client._public_repos_url, "test")
+
+    @patch('client.get_json')
+    def test_public_repos(self, mocked_get_json):
+        test_payload = [
+        {
+            "id": 1,
+            "name": "repo-a",
+            "full_name": "test-org/repo-a",
+            "private": False,
+            "owner": {"login": "test-org"},
+        },
+        {
+            "id": 2,
+            "name": "repo-b",
+            "full_name": "test-org/repo-b",
+            "private": False,
+            "owner": {"login": "test-org"},
+        },
+    ]
+        mocked_get_json.return_value = test_payload
+        test_client = GithubOrgClient("test-org")
+
+        result = test_client.public_repos()
+        result = test_client.public_repos()
+        mocked_get_json.assert_called_once_with(f"https://api.github.com/orgs/test-org")
+
+        self.assertEqual(result, test_payload)
