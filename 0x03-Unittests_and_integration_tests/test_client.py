@@ -79,7 +79,8 @@ class TestGithubOrgClient(unittest.TestCase):
             '_public_repos_url',
             new_callable=unittest.mock.PropertyMock
         ) as mock_property:
-            mock_property.return_value = "https://api.github.com/orgs/test-org/repos"
+            mock_property.return_value = \
+                "https://api.github.com/orgs/test-org/repos"
 
             test_client = GithubOrgClient("test-org")
 
@@ -93,4 +94,7 @@ class TestGithubOrgClient(unittest.TestCase):
                 )
 
             result1 = test_client._public_repos_url
-            self.assertEqual(result1, "https://api.github.com/orgs/test-org/repos")
+            self.assertEqual(
+                result1,
+                "https://api.github.com/orgs/test-org/repos"
+                )
