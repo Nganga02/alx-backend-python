@@ -95,7 +95,7 @@ class Conversation(models.Model):
         db_index=True
     )
     
-    participants = models.ManyToManyField(
+    participants_id = models.ManyToManyField(
         User,
         related_name='conversations',
         blank=False
@@ -142,7 +142,7 @@ class Message(models.Model):
         null=False
     )
     
-    sender = models.ForeignKey(
+    sender_id = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='sent_messages',
@@ -183,3 +183,4 @@ class Message(models.Model):
         if len(self.message_body) > length:
             return f"{self.message_body[:length]}..."
         return self.message_body
+    
