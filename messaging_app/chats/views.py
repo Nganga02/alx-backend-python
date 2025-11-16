@@ -1,17 +1,15 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
+# views.py
+from rest_framework import viewsets, status,filters
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
-from rest_framework.pagination import PageNumberPagination
 
 
 class StandardResultsSetPagination(PageNumberPagination):
-    """
-    Setting up custom pagination for consistent API responses
-    """
     page_size = 20
     page_size_query_param = 'page_size'
     max_page_size = 100
@@ -22,39 +20,23 @@ class ConversationViewSet(viewsets.ModelViewSet):
     List all conversations for the current user.
     Create a new conversation with participants.
     """
+
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['participants__id']
+    ordering_fields = ['updated_at', 'created_at']
     serializer_class = ConversationSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination  # Let DRF handle pagination
 
     def get_queryset(self):
         """
-        Get all conversations for current user
-        
-        Returns conversations ordered by most recent message
+        Return conversations for current user, ordered by most recent message
         """
-        conversations = Conversation.objects.filter(participants=self.request.user.user_id)
-        paginator = StandardResultsSetPagination()
-        paginated_conversations = paginator.paginate_queryset(
-            conversations, 
-            self.request
-        )
-
-        serializer = ConversationSerializer(
-            paginated_conversations, 
-            many=True, 
-            context={'request': self.request}
-        )
-
-        return paginator.get_paginated_response(serializer.data) 
+        return Conversation.objects.filter(
+            participants=self.request.user
+        ).order_by('-updated_at')
 
     def perform_create(self, serializer):
-        """
-        Create new conversation
-        
-        Request body:
-        {
-            "participant_ids": ["uuid1", "uuid2", "uuid3"]
-        }
-        """
         conversation = serializer.save()
         # Ensure current user is in participants
         if self.request.user not in conversation.participants.all():
@@ -64,8 +46,13 @@ class ConversationViewSet(viewsets.ModelViewSet):
     def messages(self, request, pk=None):
         """Get all messages in this conversation"""
         conversation = self.get_object()
-        messages = conversation.messages.all()
-        serializer = MessageSerializer(messages, many=True)
+        messages = conversation.messages.all().order_by('timestamp')
+        page = self.paginate_queryset(messages)
+        if page is not None:
+            serializer = MessageSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+
+        serializer = MessageSerializer(messages, many=True, context={'request': request})
         return Response(serializer.data)
 
 
@@ -76,29 +63,16 @@ class MessageViewSet(viewsets.ModelViewSet):
     """
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+
 
     def get_queryset(self):
         conversation_id = self.kwargs['conversation_id']
-        messages = Message.objects.filter(
-            conversation_id = conversation_id
-        ).order_by('sent_at')
-        
-        
-        paginator = StandardResultsSetPagination()
-        paginated_messages = paginator.paginate_queryset(
-            messages,
-            self.request
-        )
-        
-        # STEP 6: Serialize and return
-        serializer = MessageSerializer(
-            paginated_messages,
-            many=True,
-            context={'request': self.request}
-        )
-        
-        return paginator.get_paginated_response(serializer.data)
-    
+        return Message.objects.filter(
+            conversation_id=conversation_id
+        ).order_by('timestamp')  # or 'sent_at' if that's your field
+
     def perform_create(self, serializer):
         conversation = get_object_or_404(
             Conversation,
