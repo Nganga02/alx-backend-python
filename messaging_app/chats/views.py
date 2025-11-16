@@ -201,7 +201,7 @@ class CurrentUserView(APIView):
 
 
 
-class ConversationListCreateView(APIView):
+class ConversationViewSet(APIView):
     """
     List user's conversations and create new conversations
     GET /api/conversations/
@@ -415,7 +415,7 @@ class ConversationDetailView(APIView):
         )
 
 
-class MessageListCreateView(APIView):
+class MessageViewSet(APIView):
     """
     List messages in a conversation and send new messages
     GET /api/conversations/{conversation_id}/messages/
