@@ -50,25 +50,23 @@ class UserSerializer(serializers.ModelSerializer):
         return f"{obj.first_name} {obj.last_name}"
     
     def create(self, validated_data):
-        """Override create to handle password hashing."""
+        """Override create to handle password hashing"""
         password = validated_data.pop('password')
-        user = User.objects.create_user(**validated_data)
-        user.set_password(password)
-        user.save()
+        user = User.objects.create_user(password=password, **validated_data)
         return user
     
-    def update(self, instance, validated_data):
+    def update(self, user_instance, validated_data):
         """Override update to handle password hashing."""
         password = validated_data.pop('password', None)
         
         for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+            setattr(user_instance, attr, value)
         
         if password:
-            instance.set_password(password)
+            user_instance.set_password(password)
         
-        instance.save()
-        return instance
+        user_instance.save()
+        return user_instance
 
 
 class UserSummarySerializer(serializers.ModelSerializer):
