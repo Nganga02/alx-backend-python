@@ -32,6 +32,6 @@ class IsSender(BasePermission):
                 return True
             else:
                 raise PermissionDenied('Permission denied')
-        if request.method in ('GET', 'HEAD', 'OPTIONS'):
+        elif request.method in ('GET', 'HEAD', 'OPTIONS'):
             return True
         
