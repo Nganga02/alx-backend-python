@@ -7,6 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
+from .permissions import IsParticipant, IsSender
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -25,7 +26,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     search_fields = ['participants__id']
     ordering_fields = ['updated_at', 'created_at']
     serializer_class = ConversationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsParticipant]
     pagination_class = StandardResultsSetPagination  # Let DRF handle pagination
 
     def get_queryset(self):
@@ -33,12 +34,11 @@ class ConversationViewSet(viewsets.ModelViewSet):
         Return conversations for current user, ordered by most recent message
         """
         return Conversation.objects.filter(
-            participants=self.request.user
+            participants_id=self.request.user
         ).order_by('-updated_at')
 
     def perform_create(self, serializer):
         conversation = serializer.save()
-        # Ensure current user is in participants
         if self.request.user not in conversation.participants.all():
             conversation.participants.add(self.request.user)
 
@@ -62,7 +62,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     Send a new message to a conversation.
     """
     serializer_class = MessageSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSender]
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
 

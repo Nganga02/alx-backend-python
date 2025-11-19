@@ -135,7 +135,7 @@ class Message(models.Model):
         db_index=True
     )
     
-    conversation = models.ForeignKey(
+    conversation_id = models.ForeignKey(
         Conversation,
         on_delete=models.CASCADE,
         related_name='messages',
@@ -164,7 +164,7 @@ class Message(models.Model):
         ordering = ['sent_at']
         indexes = [
             models.Index(fields=['message_id']),
-            models.Index(fields=['conversation', 'sent_at']),
+            models.Index(fields=['conversation_id', 'sent_at']),
             models.Index(fields=['sender_id']),
         ]
         constraints = [

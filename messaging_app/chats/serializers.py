@@ -100,7 +100,7 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = [
             'message_id',
-            'conversation',
+            'conversation_id',
             'sender',
             'sender_id',
             'message_body',
