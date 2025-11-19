@@ -1,11 +1,8 @@
 from rest_framework.permissions import BasePermission
-from models import (
-    Conversation,
-    Message
-)
 
 
-class IsParticipant(BasePermission):
+
+class IsParticipantOfConversation(BasePermission):
     """Class to determine if the logged in user
     should access a conversation"""
     def has_permission(self, request, view):
@@ -14,6 +11,10 @@ class IsParticipant(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         """Grants access to users for the conversation object""" 
+        if hasattr(obj, 'conversation_id'):
+            conversation = list(obj.conversation_id)
+        else:
+            conversation = obj
         return request.user in obj.participants_id.all()
 
 class IsSender(BasePermission):
