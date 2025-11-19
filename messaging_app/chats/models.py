@@ -165,7 +165,7 @@ class Message(models.Model):
         indexes = [
             models.Index(fields=['message_id']),
             models.Index(fields=['conversation', 'sent_at']),
-            models.Index(fields=['sender']),
+            models.Index(fields=['sender_id']),
         ]
         constraints = [
             # Ensure message_body is not empty
