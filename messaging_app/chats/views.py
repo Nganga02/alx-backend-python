@@ -7,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
-from .permissions import IsParticipant, IsSender
+from .permissions import IsParticipantOfConversation, IsSender
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -26,12 +26,15 @@ class ConversationViewSet(viewsets.ModelViewSet):
     search_fields = ['participants__id']
     ordering_fields = ['updated_at', 'created_at']
     serializer_class = ConversationSerializer
-    permission_classes = [IsAuthenticated, IsParticipant]
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
     pagination_class = StandardResultsSetPagination  # Let DRF handle pagination
+
+
 
     def get_queryset(self):
         """
-        Return conversations for current user, ordered by most recent message
+        Return conversations for current user, 
+        ordered by most recent message
         """
         return Conversation.objects.filter(
             participants_id=self.request.user
@@ -49,10 +52,18 @@ class ConversationViewSet(viewsets.ModelViewSet):
         messages = conversation.messages.all().order_by('timestamp')
         page = self.paginate_queryset(messages)
         if page is not None:
-            serializer = MessageSerializer(page, many=True, context={'request': request})
+            serializer = MessageSerializer(
+                page,
+                many=True,
+                context={'request': request}
+            )
             return self.get_paginated_response(serializer.data)
 
-        serializer = MessageSerializer(messages, many=True, context={'request': request})
+        serializer = MessageSerializer(
+            messages,
+            many=True,
+            context={'request': request}
+        )
         return Response(serializer.data)
 
 
@@ -62,26 +73,38 @@ class MessageViewSet(viewsets.ModelViewSet):
     Send a new message to a conversation.
     """
     serializer_class = MessageSerializer
-    permission_classes = [IsAuthenticated, IsSender]
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
 
+    """Overriding the get_permission from the super class"""
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsAuthenticated(), IsParticipantOfConversation(), IsSender()]
+        return [IsAuthenticated(), IsParticipantOfConversation()]
 
     def get_queryset(self):
         conversation_id = self.kwargs['conversation_id']
+
+        # Fetching conversations so as to fetch messages
+        conversation = get_object_or_404(
+            Conversation,
+            conversation_id=conversation_id,
+            participants_id=self.request.user
+        )
+
         return Message.objects.filter(
-            conversation_id=conversation_id
-        ).order_by('timestamp')  # or 'sent_at' if that's your field
+            conversation_id=conversation
+        ).order_by('sent_at')
 
     def perform_create(self, serializer):
         conversation = get_object_or_404(
             Conversation,
-            id=self.kwargs['conversation_id'],
-            participants=self.request.user
+            conversation_id_id=self.kwargs['conversation_id'],
+            participants_id=self.request.user
         )
         serializer.save(
             sender=self.request.user,
             conversation=conversation
         )
-        # Update conversation timestamp
-        conversation.save(update_fields=['updated_at'])
+        conversation.save()

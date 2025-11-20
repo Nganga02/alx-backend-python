@@ -139,7 +139,8 @@ class Message(models.Model):
         Conversation,
         on_delete=models.CASCADE,
         related_name='messages',
-        null=False
+        null=False,
+        db_column='conversation_id'
     )
     
     sender_id = models.ForeignKey(
