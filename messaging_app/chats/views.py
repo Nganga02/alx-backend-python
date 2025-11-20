@@ -108,3 +108,12 @@ class MessageViewSet(viewsets.ModelViewSet):
             conversation=conversation
         )
         conversation.save()
+
+    def destroy(self, request, *args, **kwargs):
+        message = self.get_object()
+        if message.sender_id != request.user:
+            return Response(
+                {"detail": "Permission denied"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().destroy(request, *args, **kwargs)

@@ -132,6 +132,22 @@ class MessageSerializer(serializers.ModelSerializer):
         sender_id = validated_data.pop('sender_id')
         sender = User.objects.get(user_id=sender_id)
         return Message.objects.create(sender=sender, **validated_data)
+    
+    def update(self, instance, validated_data):
+    # Only update message_body if provided
+        validated_data.pop('sender_id', None)
+        message_body = validated_data.get('message_body', None)
+
+        if message_body is not None:
+            if message_body.strip() == "":
+                raise serializers.ValidationError("Message cannot be empty.")
+            instance.message_body = message_body
+
+        instance.save()
+        return instance
+
+         
+
 
 
 class ConversationSerializer(serializers.ModelSerializer):

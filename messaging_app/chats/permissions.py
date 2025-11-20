@@ -30,9 +30,5 @@ class IsSender(BasePermission):
         """Grants access to users for the conversation object""" 
         if request.method in SAFE_METHODS:
             return True
-        if request.method in ('DELETE', 'PATCH', 'PUT', 'POST'):
-            if obj.sender_id == request.user:
-                return True
-            else:
-                raise PermissionDenied('Permission denied')
+        return obj.sender_id == request.user
         
