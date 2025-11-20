@@ -1,19 +1,17 @@
 # views.py
-from rest_framework import viewsets, status,filters
+from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
 from .permissions import IsParticipantOfConversation, IsSender
-
-
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 20
-    page_size_query_param = 'page_size'
-    max_page_size = 100
+from .pagination import StandardResultsSetPagination
+from .filters import ( 
+    MessageFilter,
+    ConversationFilter
+)
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
@@ -22,9 +20,9 @@ class ConversationViewSet(viewsets.ModelViewSet):
     Create a new conversation with participants.
     """
 
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [ConversationFilter]
     search_fields = ['participants__id']
-    ordering_fields = ['updated_at', 'created_at']
+    ordering_fields = ['created_at']
     serializer_class = ConversationSerializer
     permission_classes = [IsAuthenticated, IsParticipantOfConversation]
     pagination_class = StandardResultsSetPagination  # Let DRF handle pagination
@@ -38,7 +36,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
         """
         return Conversation.objects.filter(
             participants_id=self.request.user
-        ).order_by('-updated_at')
+        )
 
     def perform_create(self, serializer):
         conversation = serializer.save()
@@ -75,7 +73,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated, IsParticipantOfConversation]
     pagination_class = StandardResultsSetPagination
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [MessageFilter]
 
     """Overriding the get_permission from the super class"""
     def get_permissions(self):

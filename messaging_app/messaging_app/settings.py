@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # Third party apps
     'rest_framework',
     'rest_framework.authtoken',
+    'django-filters',
 
     # Local apps
     'chats',
@@ -141,8 +142,11 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication"
 
     ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 20,
 }
 
 AUTH_USER_MODEL = 'chats.User'
