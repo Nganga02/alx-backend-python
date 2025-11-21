@@ -16,6 +16,8 @@ class User(AbstractUser):
         ('host', 'Host'),
         ('admin', 'Admin'),
     ]
+
+    USERNAME_FIELD = 'email'
     
     # Phone number validator
     phone_regex = RegexValidator(
