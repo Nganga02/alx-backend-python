@@ -95,7 +95,7 @@ class Conversation(models.Model):
         db_index=True
     )
     
-    participants_id = models.ManyToManyField(
+    participants = models.ManyToManyField(
         User,
         related_name='conversations',
         blank=False
@@ -142,7 +142,7 @@ class Message(models.Model):
         null=False
     )
     
-    sender_id = models.ForeignKey(
+    sender = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='sent_messages',
