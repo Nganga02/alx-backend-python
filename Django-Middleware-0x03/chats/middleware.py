@@ -1,15 +1,14 @@
 import logging
 from time import time
+from datetime import datetime
 from django.http import JsonResponse
 from django.utils.timezone import now
 from django.core.cache import cache # Helping in persistent storage of the sender_id
 
 
 logger = logging.getLogger(__name__)
-handler = logging.StreamHandler('requests.log')
+logging.basicConfig(filename='requests.log', encoding='utf-8', level=logging.DEBUG)
 formatter = logging.Formatter(fmt = "%(asctime)s %(levelname)s: %(message)s")
-handler.formatter = formatter
-logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
 CRITICAL_ACTION = 'DELETE'
@@ -25,7 +24,7 @@ class RequestLoggingMiddleware:
     def __call__(self, request):
         """Function to make the class callable"""
 
-        logger.info(f'-User:{request.user}-Path:{request.path}')
+        logger.info(f'{datetime.now()}-User:{request.user}-Path:{request.path}')
 
         response = self.get_response(request)
 

@@ -1,0 +1,10 @@
+INFO:chats.middleware:-User:AnonymousUser-Path:/
+ERROR:django.request:Internal Server Error: /
+Traceback (most recent call last):
+  File "/home/kamau/Documents/EDUCATION/programming_bckend/projects/ALX/alx-backend-python/Django-Middleware-0x03/.venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/kamau/Documents/EDUCATION/programming_bckend/projects/ALX/alx-backend-python/Django-Middleware-0x03/chats/middleware.py", line 107, in __call__
+    if request.user.role not in {'admin', 'moderator'}:
+  File "/home/kamau/Documents/EDUCATION/programming_bckend/projects/ALX/alx-backend-python/Django-Middleware-0x03/.venv/lib/python3.10/site-packages/django/utils/functional.py", line 253, in inner
+    return func(_wrapped, *args)
+AttributeError: 'AnonymousUser' object has no attribute 'role'
