@@ -1,18 +1,34 @@
 # views.py
+"""This is a request handler"""
 from rest_framework import viewsets, status,filters
+from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from .models import Conversation, Message
-from .serializers import ConversationSerializer, MessageSerializer
+from .serializers import ConversationSerializer, MessageSerializer, UserSerializer
 
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = 'page_size'
     max_page_size = 100
+
+class UserViewSet(APIView):
+    """View to handle users"""
+    def post(self, request):
+        serializer = UserSerializer(data = request.data)
+
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                "message": "User registered successfully",
+                "user_id": str(user.user_id),
+                "email": user.email
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
