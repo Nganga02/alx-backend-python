@@ -11,7 +11,7 @@ class Message(models.Model):
 
     content = models.TextField(blank = False)
     edited = models.BooleanField(default = False)
-    created_at = models.DateTimeField(auto_now_add=True)    
+    timestamp = models.DateTimeField(auto_now_add=True)    
     read = models.BooleanField(default = False)
     delivered = models.BooleanField(default = False)
 
