@@ -25,3 +25,4 @@ def log_message_history(sender, instance, **kwargs):
             )
             message_history.participants.add(instance.recipient, instance.actor)
             instance.edited = True
+            instance.edited_by = instance.sender

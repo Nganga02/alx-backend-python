@@ -27,6 +27,14 @@ class Message(models.Model):
         on_delete=models.DO_NOTHING
     )
 
+    edited_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='edited_messages'
+    )
+
     def __str__(self):
         return f'{self.sender}: {self.content}'
     
