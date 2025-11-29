@@ -32,7 +32,7 @@ class Message(models.Model):
     
 
 class Notification(models.Model):
-    recepient = models.ForeignKey(
+    recipient = models.ForeignKey(
         CustomUser,
         on_delete = models.CASCADE,
         related_name = 'notifications'
@@ -49,5 +49,26 @@ class Notification(models.Model):
         related_name='messages'
     )
 
+    timestamp = models.DateTimeField()
+    
+    class Meta:
+        ordering = ['-timestamp']
+
     def __str__(self):
         return f'From: {self.actor} To: {self.recepient}'
+
+
+
+class MessageHistory(models.Model):
+    participants = models.ManyToManyField(
+        CustomUser,
+        related_name='history',
+        blank=False
+    )
+
+    message = models.ForeignKey(
+        Message,
+        on_delete=models.DO_NOTHING,
+    )
+    old_content = models.TextField()
+    edited_at = models.DateTimeField(auto_now=True)
