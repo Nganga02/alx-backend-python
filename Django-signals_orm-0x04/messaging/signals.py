@@ -19,9 +19,9 @@ def log_message_history(sender, instance, **kwargs):
     if instance.pk:
         old_message = Message.objects.get(pk = instance.pk)
         if old_message.content != instance.content:
-            new_message = Message.objects.create(
+            message_history = MessageHistory.objects.create(
                 message = instance.content,
                 old_content = old_message.content
             )
-            new_message.participants.add(instance.recipient, instance.actor)
+            message_history.participants.add(instance.recipient, instance.actor)
             instance.edited = True
