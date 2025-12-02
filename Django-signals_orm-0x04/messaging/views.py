@@ -13,7 +13,7 @@ def delete_user(request, pk):
     #fetching the user to delete from the data
     user = get_object_or_404(CustomUser, pk = pk)
 
-    if request.user.pk == user_to_delete.pk:
+    if request.user.pk == user.pk:
         logout(request)
         messages.success(request, "Your account has been successfully deleted")
         user.delete()

@@ -39,6 +39,6 @@ def log_message_history(sender, instance, **kwargs):
 @receiver(post_delete, sender = CustomUser)
 def delete_user_related_data(sender, instance, **kwargs):
     """Deleting all data related to the user"""
-    instance.messages.all().delete()
-    instance.notifications.all().delete()
-    instance.history.all().delete()
+    Message.objects.filter(sender=instance).delete()
+    Notification.objects.filter(User=instance).delete()
+    MessageHistory.objects.filter(message_sender = instance).delete()
