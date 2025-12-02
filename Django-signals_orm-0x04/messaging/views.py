@@ -11,9 +11,9 @@ from django.contrib import messages
 @api_view(['GET', 'POST '])
 def delete_user(request, pk):
     #fetching the user to delete from the data
-    user_to_delete = get_object_or_404(CustomUser, pk = pk)
+    user = get_object_or_404(CustomUser, pk = pk)
 
     if request.user.pk == user_to_delete.pk:
         logout(request)
         messages.success(request, "Your account has been successfully deleted")
-        user_to_delete.delete()
+        user.delete()
