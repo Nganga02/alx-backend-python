@@ -1,6 +1,14 @@
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import (
+    post_save, 
+    pre_save, 
+    post_delete
+    )
 from django.dispatch import receiver
-from .models import Message, Notification, MessageHistory
+from .models import (
+    Message,
+    Notification,
+    MessageHistory,
+    CustomUser)
 
 @receiver(post_save, sender = Message)
 def notify(sender, instance, created, **kwargs):
@@ -26,3 +34,11 @@ def log_message_history(sender, instance, **kwargs):
             message_history.participants.add(instance.recipient, instance.actor)
             instance.edited = True
             instance.edited_by = instance.sender
+
+
+@receiver(post_delete, sender = CustomUser)
+def delete_user_related_data(sender, instance, **kwargs):
+    """Deleting all data related to the user"""
+    instance.messages.all().delete()
+    instance.notifications.all().delete()
+    instance.history.all().delete()
