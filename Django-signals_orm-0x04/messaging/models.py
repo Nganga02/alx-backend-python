@@ -8,7 +8,7 @@ class CustomUser(AbstractUser):
 
 
 class Message(models.Model):
-
+    """Message model"""
     content = models.TextField(blank = False)
     edited = models.BooleanField(default = False)
     timestamp = models.DateTimeField(auto_now_add=True)    
@@ -16,6 +16,14 @@ class Message(models.Model):
     delivered = models.BooleanField(default = False)
 
     #relationships
+    parent_message = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        related_name='replies',
+        blank = True,
+        null = True
+    )
+
     sender = models.ForeignKey(
         CustomUser,
         on_delete= models.CASCADE,
@@ -30,16 +38,32 @@ class Message(models.Model):
     edited_by = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,
-        null=True,
+        null=True,  
         blank=True,
         related_name='edited_messages'
     )
+
+    @property
+    def get_thread(self):
+        thread = {
+            "message": self,
+            "replies": []
+        }
+
+        replies = self.replies.prefetch_related('sender', 'receiver')
+
+        for reply in replies:
+            thread['replies'].append(reply)
+
+
+        return thread
 
     def __str__(self):
         return f'{self.sender}: {self.content}'
     
 
 class Notification(models.Model):
+    """Notification model"""
     recipient = models.ForeignKey(
         CustomUser,
         on_delete = models.CASCADE,
@@ -68,6 +92,7 @@ class Notification(models.Model):
 
 
 class MessageHistory(models.Model):
+    """Model to hold the message history of edited messages"""
     participants = models.ManyToManyField(
         CustomUser,
         related_name='history',
