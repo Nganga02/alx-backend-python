@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import logout, decorators
 from django.db.models import Q
 from django.contrib import messages
+from django.views.decorators.cache import cache_page
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -27,6 +28,7 @@ def delete_user(request, pk):
 
 @api_view
 @permission_classes([IsAuthenticatedOrReadOnly])
+@cache_page(60  )
 def thread_view(request, pk):
     #This is the root message
     message_qs = Message.objects.filter(
