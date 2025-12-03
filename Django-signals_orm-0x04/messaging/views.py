@@ -50,7 +50,7 @@ def thread_view(request, pk):
 @permission_classes([IsAuthenticatedOrReadOnly])
 def unread_messages_view(request):
     """Using custom manager to get unread messages"""
-    unread_qs = Message.unread.unread_messages(request.user).only(
+    unread_qs = Message.unread.unread_for_users(request.user).only(
         'content',
         'sender',
         'timestamp'
