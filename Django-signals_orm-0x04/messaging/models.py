@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+from rest_framework import serializers
+
+from .managers import UnreadMessagesManager
+
 
 # Create your models here.
 class CustomUser(AbstractUser):
@@ -43,6 +47,8 @@ class Message(models.Model):
         related_name='edited_messages'
     )
 
+    unread = UnreadMessagesManager()
+
     @property
     def get_thread(self):
         thread = {
@@ -61,6 +67,13 @@ class Message(models.Model):
     def __str__(self):
         return f'{self.sender}: {self.content}'
     
+
+class UnreadMessageSerializer(serializers.Serializer):
+    """Serializer class for the messages model"""
+    class Meta:
+        model = Message
+        fields = ['id', 'content', 'timestamp', 'sender']
+
 
 class Notification(models.Model):
     """Notification model"""
