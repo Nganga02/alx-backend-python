@@ -1,6 +1,9 @@
 #!bin/bash
 
 minikube start --driver=docker
+if [ $? -ne 0 ]; then 
+    echo "failed to start cluster!!!"
+fi
 
 minikube kubectl cluster-info
 
