@@ -1,0 +1,7 @@
+#!bin/bash
+
+minikube start --driver=docker
+
+minikube kubectl cluster-info
+
+minikube kubectl -- get pods --all-namespaces
