@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messaging-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: messaging-app
+  #describes the pod template
+  template:
+    metadata:
+      labels:
+        app: messaging-app
+    spec:
+      containers:
+        - name: messaging-container
+          image: nicholaskamau/messaging_app:0.0.1
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: messaging_app.settings
+            - name: DEBUG
+              value: "1"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: messaging-svc
+spec:
+  selector:
+    app: messaging-app
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql-db
+    spec:
+      containers:
+        - name: mysql-database
+          image: mysql:8.0
+          ports:
+            containerPort: 3306
+          env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: password
+          ports:
+          - containerPort: 3306
+            name: mysql
+          volumeMounts:
+          - name: mysql-persistent-storage
+            mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-svc
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql-db
+  clusterIP: None
