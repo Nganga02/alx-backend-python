@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Script: kubctl-0x02
+# Deploys blue-green for Django app and checks for errors in green
+
+BLUE_DEP="blue_deployment.yaml"
+GREEN_DEP="green_deployment.yaml"
+SVC="kubeservice.yaml"
+NAMESPACE="default"  # Change if needed
+
+# Step 1: Deploy blue (current)
+echo "Deploying blue version..."
+minikube kubectl -- apply -f "$BLUE_DEP" -n "$NAMESPACE"
+
+# Step 2: Deploy green (new)
+echo "Deploying green version..."
+minikube kubectl -- apply -f "$GREEN_DEP" -n "$NAMESPACE"
+
+# Step 3: Apply Service (initially to blue)
+echo "Applying Service (pointing to blue)..."
+minikube kubectl -- apply -f "$SVC" -n "$NAMESPACE"
+
+# Step 4: Wait for green pods to be ready
+echo "Waiting for green pods to be ready..."
+minikube kubectl -- rollout status deployment/django-green -n "$NAMESPACE" --timeout=5m
+
+# Step 5: Check logs for errors in green pods
+echo "Checking logs for errors in green deployment..."
+GREEN_PODS=$(kubectl get pods -l app=django,version=green -o jsonpath="{.items[*].metadata.name}" -n "$NAMESPACE")
+ERROR_FOUND=0
+
+for POD in $GREEN_PODS; do
+    LOGS=$(kubectl logs "$POD" -n "$NAMESPACE" --tail=100)
+    if echo "$LOGS" | grep -i -E "error|exception|failed"; then
+        echo "Errors found in pod $POD:"
+        echo "$LOGS" | grep -i -E "error|exception|failed"
+        ERROR_FOUND=1
+    else
+        echo "No errors in pod $POD."
+    fi
+done
+
+if [ "$ERROR_FOUND" -eq 1 ]; then
+    echo "Errors detected in green deployment. Aborting switch."
+    exit 1
+else
+    echo "No errors in green. Proceeding to switch traffic."
+fi
+
+# Step 6: Switch traffic to green (atomic; edit selector)
+echo "Switching Service to green..."
+kubectl patch service django-service -n "$NAMESPACE" -p '{"spec":{"selector":{"version":"green"}}}'
+
+# Optional: For gradual simulation (manual steps or use Argo/Istio for real)
+# echo "Gradual shift: Monitor and adjust weights via Ingress if set up."
+
+echo "Blue-green deployment complete. Traffic now on green."

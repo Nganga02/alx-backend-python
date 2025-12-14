@@ -7,10 +7,10 @@ spec:
   rules:
     - http:
       paths:
-        path: /api
-        pathtype: prefix
-        backend:
-          service:
-            name: messaging-svc
-            port: 
-              number: 8000
+        - path: /api
+          pathtype: Prefix
+          backend:
+            service:
+              name: messaging-svc
+              port: 
+                number: 800
