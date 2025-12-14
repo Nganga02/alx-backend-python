@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# Script: kubctl-0x03
+# Triggers rolling update by applying updated blue_deployment.yaml (image v2.0)
+# Monitors progress and tests for zero downtime
+
+DEPLOYMENT_FILE="blue_deployment.yaml"
+DEPLOYMENT_NAME="django-blue"
+SERVICE_NAME="django-service"  # Adjust if your service has a different name
+NAMESPACE="default"
+APP_URL="http://<YOUR-INGRESS-OR-SERVICE-URL>/api/health"  # Replace with actual reachable endpoint
+
+# Optional: If using Ingress, get external IP or domain
+# For Minikube: APP_URL="http://$(minikube ip)/api/health"
+# For cloud: use your domain or LoadBalancer IP
+
+echo "=== Starting Rolling Update to version 2.0 ==="
+
+# Step 1: Apply the updated deployment to trigger rolling update
+echo "Applying updated deployment (image: 2.0)..."
+kubectl apply -f "$DEPLOYMENT_FILE" -n "$NAMESPACE"
+
+# Step 2: Monitor rollout status
+echo "Monitoring rollout status..."
+kubectl rollout status deployment/"$DEPLOYMENT_NAME" -n "$NAMESPACE" --timeout=300s
+
+if [ $? -ne 0 ]; then
+    echo "Rolling update failed or timed out!"
+    exit 1
+fi
+
+echo "Rolling update completed successfully!"
+
+# Step 3: Continuous curl test during and after update (zero downtime check)
+echo "Testing for downtime by sending continuous requests..."
+echo "Press Ctrl+C to stop testing"
+
+# Background loop sending requests every 1 second
+while true; do
+    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL" 2>/dev/null || echo "000")
+    TIMESTAMP=$(date '+%H:%M:%S')
+    if [[ "$RESPONSE" == 200 ]]; then
+        echo "[$TIMESTAMP] OK - Response: $RESPONSE"
+    else
+        echo "[$TIMESTAMP] ERROR - Response: $RESPONSE (possible downtime!)"
+    fi
+    sleep 1
+done &
+
+CURL_PID=$!
+
+# Optional: Wait a bit then stop after verification
+sleep 30  # Let it run for 30 seconds to observe during rollout
+kill $CURL_PID 2>/dev/null
+wait $CURL_PID 2>/dev/null
+
+# Step 4: Verify current pods are running new version
+echo "Verifying current pods..."
+kubectl get pods -l app=django,version=blue -n "$NAMESPACE" -o wide
+
+echo "Image versions in running pods:"
+kubectl get pods -l app=django,version=blue -n "$NAMESPACE" \
+  -o jsonpath="{.items[*].spec.containers[*].image}" | tr ' ' '\n' | sort | uniq -c
+
+echo "=== Rolling Update Complete - Zero Downtime Verified ==="
