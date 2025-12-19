@@ -1,0 +1,83 @@
+pipeline{
+    agent any
+
+    environment{
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials-id')
+        DOCKER_IMAGE = "nicholaskamau/messaging_app:0.0.2"
+    }
+    
+    stages{
+        stage('Checkout'){
+            steps{
+                git branch: "master",
+                    url: 'https://github.com/Nganga02/alx-backend-python.git',
+                    credentialsId: 'dg-github-creds-id' 
+            }
+        }
+        stage('Verify Docker Connection'){
+            steps {
+                sh '''
+                echo "Checking Docker connectivity..."
+                docker info
+                docker version
+                '''
+            }
+        }
+         stage('Build Production Docker Image') {
+            steps {
+                sh '''
+                docker build -t $DOCKER_IMAGE:latest -f messaging_app/Dockerfile messaging_app
+                '''
+            }
+        }
+        stage('Push Production Docker Image') { 
+            steps { 
+                sh '''
+                mkdir -p /tmp/docker-config
+                echo $DOCKERHUB_CREDENTIALS_PSW | docker --config /tmp/docker-config login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
+                docker --config /tmp/docker-config push $DOCKER_IMAGE:latest
+                ''' 
+            } 
+        }
+        stage('Build Docker image for testing') {
+            steps {
+                sh '''
+                docker build -t $DOCKER_IMAGE:test -f $DOCKER_IMAGE/Dockerfile.test messaging_app
+                '''
+            }
+        }
+        stage('Run Tests in Container') {
+            steps {
+                sh '''
+                # Run the test container with a fixed name
+                docker run --name $DOCKER_IMAGE_test $DOCKER_IMAGE:test || true
+
+                # Copy the JUnit XML report out of the container
+                mkdir -p reports || true
+                docker cp $DOCKER_IMAGE_test:/tmp/test-results.xml reports/test-results.xml || true
+
+                # Remove the container after copying
+                docker rm -f $DOCKER_IMAGE_test || true
+                '''
+            }
+        }
+        stage('Publish Report') {
+            steps {
+                junit 'reports/test-results.xml'
+            }
+        }
+
+    }
+    post{
+         always {
+            // Archive raw XML for download and traceability
+            archiveArtifacts artifacts: 'reports/test-results.xml', fingerprint: true
+        }
+        success {
+            echo 'Tests passed successfully!'
+        }
+        failure {
+            echo 'Tests failed. Check reports.'
+        }
+    }
+}

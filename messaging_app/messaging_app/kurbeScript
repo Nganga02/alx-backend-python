@@ -7,4 +7,4 @@ fi
 
 minikube kubectl cluster-info
 
-minikube kubectl -- get pods --all-namespaces
+minikube kubectl -- get pods 
