@@ -3,7 +3,7 @@ pipeline{
 
     environment{
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials-id')
-        DOCKER_IMAGE = "nicholaskamau/messaging_app:0.0.2"
+        DOCKER_IMAGE = "nicholaskamau/messaging_app"
     }
     
     stages{
